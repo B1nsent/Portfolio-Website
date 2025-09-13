@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('mainContent');
     let highlightedElements = [];
 
-    const API_BASE = 'http://127.0.0.1:8000/api';
+    const API_BASE = 'https://cms-1-z0f5.onrender.com';
 
     function clearHighlights() {
         highlightedElements.forEach(el => {
