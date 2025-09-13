@@ -303,8 +303,8 @@
             .project-card {
                 width: 100%;
             }
- .about-widgets-container,
-    .credentials-widgets-container {
+ .about-widget-container,
+    .credentials-widget-container {
         display: none;
     }
         }
