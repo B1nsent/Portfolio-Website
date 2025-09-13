@@ -24,6 +24,7 @@ body {
     background: var(--bg-main);
     color: var(--text-primary);
     line-height: 1.4;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 /* Header */
@@ -91,8 +92,8 @@ body {
     gap: 8px;
     padding-top: 20px;
     position: sticky;
-    top: 60px; /* Adjust based on header height */
-    align-self: flex-start; /* Ensures the container sticks to the top */
+    top: 60px;
+    align-self: flex-start;
     max-height: calc(100vh - 80px);
     overflow-y: auto;
 }
@@ -174,7 +175,7 @@ body {
 
 /* Section Body for content */
 .section-body {
-    margin-bottom: 20px; /* Space between content and actions */
+    margin-bottom: 20px;
 }
 
 /* Experience Section */
@@ -255,7 +256,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 15px; /* Space from content above */
+    margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--border);
 }
@@ -290,7 +291,7 @@ body {
 }
 
 .vote-buttons .action-button {
-    border-radius: 0; /* Remove individual button border-radius within group */
+    border-radius: 0;
     background: none;
     padding: 6px 8px;
 }
@@ -306,7 +307,6 @@ body {
     padding: 0 4px;
 }
 
-
 /* Sidebar Widgets */
 .sidebar {
     grid-column: 3 / 4;
@@ -314,7 +314,7 @@ body {
 
 .sticky-widget-container {
     position: sticky;
-    top: 60px; /* Adjust to be below the header */
+    top: 60px;
     align-self: flex-start;
     display: flex;
     flex-direction: column;
@@ -383,19 +383,16 @@ body {
     border-radius: 2px;
 }
 
-
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .app-layout {
-       
         grid-template-columns: 1fr 300px;
-        padding: 16px; /* Adjust padding for tablets */
+        padding: 16px;
     }
     .left-nav {
         display: none;
     }
     .sticky-widget-container {
-        /* Make widgets static on tablets */
         position: static;
         top: auto;
         display: block;
@@ -407,31 +404,23 @@ body {
 
 @media (max-width: 768px) {
     .app-layout {
-        /* Change from a grid with multiple columns to a single column */
         grid-template-columns: 1fr;
-        padding: 16px 8px; /* Adjust padding for mobile screens */
+        padding: 16px 8px;
         gap: 20px;
     }
-    
     .profile-header {
-        /* Stack the profile picture and info vertically on mobile */
         flex-direction: column;
         align-items: center; 
         text-align: center;
     }
-    
     .sidebar {
-        /* Move the sidebar to the bottom of the content on the index page */
         order: 1; 
         grid-column: span 1;
     }
-    
     .main-content {
         grid-column: span 1;
         gap: 20px;
     }
-    
-    /* Other mobile adjustments */
     .app-header .header-container {
         flex-wrap: wrap; 
         justify-content: center;
