@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const projectCard = document.createElement('div');
             projectCard.className = 'project-card';
 
-            const imageUrl = `http://127.0.0.1:8000${project.image_url}`;
+            const imageUrl = `cms-1-z0f5.onrender.com/api${project.image_url}`;
 
             projectCard.innerHTML = `
                 <div class="project-image" style="background-image: url('${imageUrl}');"></div>
