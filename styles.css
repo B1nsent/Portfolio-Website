@@ -383,17 +383,19 @@ body {
     border-radius: 2px;
 }
 
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .app-layout {
+       
         grid-template-columns: 1fr 300px;
+        padding: 16px; /* Adjust padding for tablets */
     }
     .left-nav {
         display: none;
-        position: static;
-        width: auto;
     }
     .sticky-widget-container {
+        /* Make widgets static on tablets */
         position: static;
         top: auto;
         display: block;
@@ -405,17 +407,48 @@ body {
 
 @media (max-width: 768px) {
     .app-layout {
+        /* For mobile, switch to a single column */
         grid-template-columns: 1fr;
-        padding: 16px 8px;
+        padding: 16px 8px; /* Adjust padding for mobile screens */
+        gap: 20px; /* Add some space between sections */
     }
-    .main-content,
+    
     .sidebar {
+        /* THIS IS THE KEY FIX */
+        /* Move the sidebar to the top of the content */
+        order: -1; 
+        grid-column: span 1; /* Make it span the full width */
+    }
+
+    .main-content {
         grid-column: span 1;
+        gap: 20px;
     }
-    .sidebar {
-        order: -1;
+    
+    .profile-header {
+        /* Stack the profile picture and info vertically on mobile */
+        flex-direction: column;
+        align-items: center; 
+        text-align: center;
     }
+
+    .profile-info h1 {
+        font-size: 20px;
+    }
+    
     .project-card {
         width: 100%;
+    }
+
+    .app-header .header-container {
+        /* Simple flexbox for the header on mobile */
+        flex-wrap: wrap; 
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .search-bar {
+        order: 1; /* Move search bar to the next line */
+        flex-basis: 100%;
     }
 }
