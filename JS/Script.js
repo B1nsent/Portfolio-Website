@@ -113,9 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let endpoint;
         if (isAllProjectsPage) {
-            endpoint = `${API_BASE}/projects`;
+            // Updated to the new public endpoint
+            endpoint = `${API_BASE}/projects/public`;
         } else {
-            endpoint = `${API_BASE}/projects/featured`;
+            // Updated to the new public endpoint
+            endpoint = `${API_BASE}/projects/public/featured`;
         }
 
         const response = await fetch(endpoint);
@@ -171,14 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Error fetching projects:", error);
         const container = document.querySelector('#projects .projects-grid');
         if (container) {
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load projects. Make sure FastAPI server is running on port 8000.</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load projects. Refresh the page or try again later.</p>';
         }
     }
 }
 
     async function fetchExperience() {
         try {
-            const response = await fetch(`${API_BASE}/experience`);
+            // Updated to the new public endpoint
+            const response = await fetch(`${API_BASE}/experience/public`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -208,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             const container = document.getElementById('experience-container');
             if (container) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load experience. Make sure FastAPI server is running on port 8000.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load experience. Refresh the page or try again later.</p>';
             }
         }
     }
@@ -217,8 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
         const isProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
-        
-        const response = await fetch(`${API_BASE}/credentials`);
+
+        // Updated to the new public endpoint
+        const response = await fetch(`${API_BASE}/credentials/public`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -249,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const dataToRender = isAllCredentialsPage ? sortedData : sortedData.slice(0, 3);
-        
+
         dataToRender.forEach(credential => {
             if (isAllCredentialsPage) {
                 const credentialItem = document.createElement('div');
@@ -283,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             seeMoreLink.textContent = 'See All Credentials →';
             container.parentElement.appendChild(seeMoreLink);
         }
-        
+
     } catch (error) {
         console.error("Error fetching credentials:", error);
         const containerIndex = document.getElementById('credentials-container');
