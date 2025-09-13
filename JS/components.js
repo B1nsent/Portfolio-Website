@@ -29,12 +29,12 @@ class ComponentLoader {
         const isCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
         
         const components = [
-            { path: 'components/sidebar.html', target: '#sidebar-container' },
-            { path: 'components/about-widget.html', target: '#about-widget-container' }
+            { path: './Components/sidebar.html', target: '#sidebar-container' },
+            { path: './Components/about-widget.html', target: '#about-widget-container' }
         ];
 
         if (!isCredentialsPage) {
-            components.push({ path: 'components/credentials-widget.html', target: '#credentials-widget-container' });
+            components.push({ path: './Components/credentials-widget.html', target: '#credentials-widget-container' });
         }
 
         await this.loadMultipleComponents(components);
