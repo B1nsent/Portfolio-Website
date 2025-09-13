@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vincent's Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+     <header class="app-header">
+        <div class="header-container">
+            <a href="index.html" class="site-logo">VSM</a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search portfolio content...">
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- Sidebar component will be loaded here -->
+        <div id="sidebar-container"></div>
+
+        <main class="main-content" id="mainContent">
+            <div class="profile-header">
+                <div class="profile-pic">
+                    <img src="Images/s2.png">
+                </div>
+                <div class="profile-info">
+                    <h1>Vincent S. Macasinag</h1>
+                    <span>BS in Information Technology Student</span>
+                </div>
+            </div>
+
+            <section id="introduction" class="section-card">
+                <h2>Introduction</h2>
+                <div class="section-body">
+                    <p>Yokoso! I am Vincent, an IT Student. My passion lies in IT and Politics. I believe that blending these 2 fields can make this country a better place.</p> <br>
+                    <p>This website is a showcase of my student journey. Feel free to explore and learn more about myself.</p>
+                </div>
+                <div class="section-actions">
+                    <div class="vote-buttons">
+                        <button class="action-button"><i class="bi bi-arrow-up"></i></button>
+                        <span class="vote-count">127</span>
+                        <button class="action-button"><i class="bi bi-arrow-down"></i></button>
+                    </div>
+                    <button class="action-button"><i class="bi bi-chat"></i> 25 Comments</button>
+                    <button class="action-button"><i class="bi bi-award"></i> Award</button>
+                    <button class="action-button share-button"><i class="bi bi-share"></i> Share</button>
+                </div>
+            </section>
+
+            <section id="experience" class="section-card">
+                <h2>Experience (School Projects)</h2>
+                <div id="experience-container" class="section-body">
+                    </div>
+                <div class="section-actions">
+                    <div class="vote-buttons">
+                        <button class="action-button"><i class="bi bi-arrow-up"></i></button>
+                        <span class="vote-count">89</span>
+                        <button class="action-button"><i class="bi bi-arrow-down"></i></button>
+                    </div>
+                    <button class="action-button"><i class="bi bi-chat"></i> 15 Comments</button>
+                    <button class="action-button"><i class="bi bi-award"></i> Award</button>
+                    <button class="action-button share-button"><i class="bi bi-share"></i> Share</button>
+                </div>
+            </section>
+
+            <section id="projects" class="section-card">
+                <h2>Personal and School Projects</h2>
+                <div id="projects-container" class="section-body">
+                    <div class="projects-grid">
+                        </div>
+                </div>
+                <div class="section-actions">
+                    <div class="vote-buttons">
+                        <button class="action-button"><i class="bi bi-arrow-up"></i></button>
+                        <span class="vote-count">156</span>
+                        <button class="action-button"><i class="bi bi-arrow-down"></i></button>
+                    </div>
+                    <button class="action-button"><i class="bi bi-chat"></i> 32 Comments</button>
+                    <button class="action-button"><i class="bi bi-award"></i> Award</button>
+                    <button class="action-button share-button"><i class="bi bi-share"></i> Share</button>
+                </div>
+            </section>
+
+            <section id="education" class="section-card">
+                <h2>Education</h2>
+                <div class="section-body">
+                    <div class="job-item">
+                        <h3>University of Nueva Caceres</h3>
+                        <p>Tertiary</p>
+                        <p>BS Information Technology (2023-Present)</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>University of Nueva Caceres</h3>
+                        <p>Basic Education</p>
+                        <p>Technical and Vocational Livelihood - Information and Communications Technology (2021-2023)</p>
+                    </div>
+                </div>
+                <div class="section-actions">
+                    <div class="vote-buttons">
+                        <button class="action-button"><i class="bi bi-arrow-up"></i></button>
+                        <span class="vote-count">45</span>
+                        <button class="action-button"><i class="bi bi-arrow-down"></i></button>
+                    </div>
+                    <button class="action-button"><i class="bi bi-chat"></i> 8 Comments</button>
+                    <button class="action-button"><i class="bi bi-award"></i> Award</button>
+                    <button class="action-button share-button"><i class="bi bi-share"></i> Share</button>
+                </div>
+            </section>
+
+        </main>
+
+        <aside class="sidebar">
+            <div class="sticky-widget-container">
+                <!-- About widget will be loaded here -->
+                <div id="about-widget-container"></div>
+                
+                <!-- Credentials widget will be loaded here -->
+                <div id="credentials-widget-container"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Load component loader first, then your existing script -->
+    <script src="JS/components.js"></script>
+    <script src="JS/Script.js"></script>
+</body>
+</html>
