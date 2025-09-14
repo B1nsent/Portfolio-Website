@@ -12,13 +12,12 @@
         <div class="header-container">
             <a href="index.html" class="site-logo">VSM</a>
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search portfolio content...">
+                <input type="text" id="searchInput" placeholder="Search site content...">
             </div>
         </div>
     </header>
 
     <div class="app-layout">
-        <!-- Sidebar component will be loaded here -->
         <div id="sidebar-container"></div>
 
         <main class="main-content" id="mainContent">
@@ -31,6 +30,8 @@
                     <span>BS in Information Technology Student</span>
                 </div>
             </div>
+
+            <div id="mobile-about-widget" class="mobile-about-widget"></div>
 
             <section id="introduction" class="section-card">
                 <h2>Introduction</h2>
@@ -84,6 +85,8 @@
                 </div>
             </section>
 
+            <div id="mobile-credentials-widget" class="mobile-credentials-widget"></div>
+
             <section id="education" class="section-card">
                 <h2>Education</h2>
                 <div class="section-body">
@@ -114,16 +117,13 @@
 
         <aside class="sidebar">
             <div class="sticky-widget-container">
-                <!-- About widget will be loaded here -->
                 <div id="about-widget-container"></div>
                 
-                <!-- Credentials widget will be loaded here -->
                 <div id="credentials-widget-container"></div>
             </div>
         </aside>
     </div>
 
-    <!-- Load component loader first, then your existing script -->
     <script src="./JS/components.js"></script>
     <script src="./JS/Script.js"></script>
 </body>

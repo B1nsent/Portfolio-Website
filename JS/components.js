@@ -39,40 +39,54 @@ class ComponentLoader {
 
         await this.loadMultipleComponents(components);
         
-        this.initializeComponentEvents();
     }
 
-    static initializeComponentEvents() {
-        const searchInput = document.querySelector('#searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', this.handleSearch);
-        }
-
-        this.initializeNavigation();
-    }
-
-    static handleSearch(event) {
-        const searchTerm = event.target.value.toLowerCase();
-        console.log('Searching for:', searchTerm);
-    }
-
-    static initializeNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                if (link.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    const targetId = link.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
-            });
-        });
-    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     ComponentLoader.initializeSharedComponents();
 });
+
+function handleMobileWidgets() {
+    const aboutWidget = document.getElementById('about-widget-container');
+    const credentialsWidget = document.getElementById('credentials-widget-container');
+    const mobileAboutWidget = document.getElementById('mobile-about-widget');
+    const mobileCredentialsWidget = document.getElementById('mobile-credentials-widget');
+    
+    if (aboutWidget && mobileAboutWidget) {
+        mobileAboutWidget.innerHTML = aboutWidget.innerHTML;
+    }
+    
+    if (credentialsWidget && mobileCredentialsWidget) {
+        mobileCredentialsWidget.innerHTML = credentialsWidget.innerHTML;
+    }
+}
+
+function isMobileView() {
+    return window.innerWidth <= 768;
+}
+
+function initMobileWidgets() {
+    if (isMobileView()) {
+        handleMobileWidgets();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initMobileWidgets();
+        
+        window.addEventListener('resize', () => {
+            if (isMobileView()) {
+                handleMobileWidgets();
+            }
+        });
+    }, 100);
+});
+
+if (typeof window.componentsLoaded !== 'undefined') {
+    window.componentsLoaded = function() {
+        initMobileWidgets();
+    };
+}
+

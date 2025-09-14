@@ -113,10 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let endpoint;
         if (isAllProjectsPage) {
-            // Updated to the new public endpoint
             endpoint = `${API_BASE}/projects/public`;
         } else {
-            // Updated to the new public endpoint
             endpoint = `${API_BASE}/projects/public/featured`;
         }
 
@@ -180,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchExperience() {
         try {
-            // Updated to the new public endpoint
             const response = await fetch(`${API_BASE}/experience/public`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -221,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
         const isProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
 
-        // Updated to the new public endpoint
         const response = await fetch(`${API_BASE}/credentials/public`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -301,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
-    // Call all rendering functions when page loads
     fetchProjects();
     fetchExperience();
     fetchCredentials();
