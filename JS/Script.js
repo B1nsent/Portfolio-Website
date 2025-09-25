@@ -1,9 +1,15 @@
+import { createClient } from '@supabase/supabase-js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const mainContent = document.getElementById('mainContent');
     let highlightedElements = [];
 
-    const API_BASE = 'https://cms-1-z0f5.onrender.com/api';
+    const SUPABASE_URL = 'https://egyhtyvnwloetmpbkqjg.supabase.co'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVneWh0eXZud2xvZXRtcGJrcWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NTY0MTYsImV4cCI6MjA3MzQzMjQxNn0.RmaxyX9OzPo3_H-RKLcqIXO2mkYOaxHNgmFJ8iy8peg';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const BUCKET_NAME = 'static'; 
 
     function clearHighlights() {
         highlightedElements.forEach(el => {
@@ -107,42 +113,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-   async function fetchProjects() {
-    try {
-        const isAllProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
+    async function fetchProjects() {
+        try {
+            const isAllProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
+            let query = supabase.from('projects').select('*');
 
-        let endpoint;
-        if (isAllProjectsPage) {
-            endpoint = `${API_BASE}/projects/public`;
-        } else {
-            endpoint = `${API_BASE}/projects/public/featured`;
-        }
+            if (!isAllProjectsPage) {
+                query = query.eq('is_featured', true);
+            }
 
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+            const { data, error } = await query;
+            if (error) throw error;
 
-        const container = document.querySelector('#projects .projects-grid');
-        if (!container) {
-            return;
-        }
+            const container = document.querySelector('#projects .projects-grid');
+            if (!container) return;
 
-        container.innerHTML = '';
+            container.innerHTML = '';
 
-        if (data.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No projects available yet.</p>';
-            return;
-        }
+            if (data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No projects available yet.</p>';
+                return;
+            }
 
-        data.forEach(project => {
+            data.forEach(project => {
             const projectCard = document.createElement('div');
             projectCard.className = 'project-card';
 
-            const imageUrl = project.image_url ? 
-                `https://cms-1-z0f5.onrender.com${project.image_url}` : 
-                '/static/default-project.png';
+            let imageUrl = '/static/default-project.png';
+            if (project.image_url) {
+                const fullPath = `uploads/${project.image_url}`; 
+                
+                const { data: imageData } = supabase.storage.from('static').getPublicUrl(fullPath);
+                
+                if (imageData && imageData.publicUrl) {
+                    imageUrl = imageData.publicUrl;
+                }
+            }
 
             projectCard.innerHTML = `
                 <div class="project-image" style="background-image: url('${imageUrl}');"></div>
@@ -154,40 +160,36 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(projectCard);
         });
 
-        if (!isAllProjectsPage) {
-            if (data.length > 0) { 
-                const sectionBody = document.querySelector('#projects .section-body');
-                if (sectionBody && !document.getElementById('see-more-projects-link')) {
-                    const seeMoreLink = document.createElement('a');
-                    seeMoreLink.id = 'see-more-projects-link';
-                    seeMoreLink.href = 'See-MoreProjects.html';
-                    seeMoreLink.className = 'see-more-link';
-                    seeMoreLink.textContent = 'See All Projects →';
-                    sectionBody.appendChild(seeMoreLink);
+            if (!isAllProjectsPage) {
+                if (data.length > 0) {
+                    const sectionBody = document.querySelector('#projects .section-body');
+                    if (sectionBody && !document.getElementById('see-more-projects-link')) {
+                        const seeMoreLink = document.createElement('a');
+                        seeMoreLink.id = 'see-more-projects-link';
+                        seeMoreLink.href = 'See-MoreProjects.html';
+                        seeMoreLink.className = 'see-more-link';
+                        seeMoreLink.textContent = 'See All Projects →';
+                        sectionBody.appendChild(seeMoreLink);
+                    }
                 }
             }
-        }
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        const container = document.querySelector('#projects .projects-grid');
-        if (container) {
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load projects. Refresh the page or try again later.</p>';
+        } catch (error) {
+            console.error("Error fetching projects:", error);
+            const container = document.querySelector('#projects .projects-grid');
+            if (container) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load projects. Refresh the page or try again later.</p>';
+            }
         }
     }
-}
 
     async function fetchExperience() {
         try {
-            const response = await fetch(`${API_BASE}/experience/public`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
+            // ➡️ Step 4: Update API call for Experience table
+            const { data, error } = await supabase.from('experience').select('*');
+            if (error) throw error;
 
             const container = document.getElementById('experience-container');
-            if (!container) {
-                return;
-            }
+            if (!container) return;
 
             container.innerHTML = '';
 
@@ -206,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(jobItem);
             });
         } catch (error) {
+            console.error("Error fetching experience:", error);
             const container = document.getElementById('experience-container');
             if (container) {
                 container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load experience. Refresh the page or try again later.</p>';
@@ -214,88 +217,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchCredentials() {
-    try {
-        const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
-        const isProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
+        try {
+            const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
 
-        const response = await fetch(`${API_BASE}/credentials/public`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+            // ➡️ Step 5: Update API call for Credentials table
+            const { data, error } = await supabase.from('credentials').select('*');
+            if (error) throw error;
 
-        const sortedData = data.sort((a, b) => {
-            const dateA = new Date(a.date_issued);
-            const dateB = new Date(b.date_issued);
-            return dateB - dateA;
-        });
+            const sortedData = data.sort((a, b) => {
+                const dateA = new Date(a.date_issued);
+                const dateB = new Date(b.date_issued);
+                return dateB - dateA;
+            });
 
-        let container;
-        if (isAllCredentialsPage) {
-            container = document.getElementById('credentials-main-container');
-        } else {
-            container = document.getElementById('credentials-container');
-        }
-
-        if (!container) {
-            return;
-        }
-
-        container.innerHTML = '';
-
-        if (sortedData.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No credentials available yet.</p>';
-            return;
-        }
-
-        const dataToRender = isAllCredentialsPage ? sortedData : sortedData.slice(0, 3);
-
-        dataToRender.forEach(credential => {
+            let container;
             if (isAllCredentialsPage) {
-                const credentialItem = document.createElement('div');
-                credentialItem.className = 'credential-item';
-                const iconName = credential.icon_name || 'award';
-                credentialItem.innerHTML = `
-                    <i class="bi bi-${iconName} credential-icon"></i>
-                    <div class="credential-details">
-                        <h3>${credential.title}</h3>
-                        <p><strong>Issued by:</strong> ${credential.issuer || 'N/A'} | <strong>Date:</strong> ${credential.date_issued || 'N/A'}</p>
-                        <p>${credential.description || 'No description available'}</p>
-                    </div>
-                `;
-                container.appendChild(credentialItem);
+                container = document.getElementById('credentials-main-container');
             } else {
-                const listItem = document.createElement('div');
-                listItem.className = 'list-item';
-                const iconName = credential.icon_name || 'award';
-                listItem.innerHTML = `
-                    <i class="bi bi-${iconName}"></i>
-                    <span>${credential.title}</span>
-                `;
-                container.appendChild(listItem);
+                container = document.getElementById('credentials-container');
             }
-        });
 
-        if (!isAllCredentialsPage && sortedData.length > 3) {
-            const seeMoreLink = document.createElement('a');
-            seeMoreLink.href = 'See-MoreCredentials.html';
-            seeMoreLink.className = 'see-more-link';
-            seeMoreLink.textContent = 'See All Credentials →';
-            container.parentElement.appendChild(seeMoreLink);
-        }
+            if (!container) return;
 
-    } catch (error) {
-        console.error("Error fetching credentials:", error);
-        const containerIndex = document.getElementById('credentials-container');
-        if (containerIndex) {
-            containerIndex.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
-        }
-        const containerAll = document.getElementById('credentials-main-container');
-        if (containerAll) {
-            containerAll.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
+            container.innerHTML = '';
+
+            if (sortedData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No credentials available yet.</p>';
+                return;
+            }
+
+            const dataToRender = isAllCredentialsPage ? sortedData : sortedData.slice(0, 3);
+
+            dataToRender.forEach(credential => {
+                if (isAllCredentialsPage) {
+                    const credentialItem = document.createElement('div');
+                    credentialItem.className = 'credential-item';
+                    const iconName = credential.icon_name || 'award';
+                    credentialItem.innerHTML = `
+                        <i class="bi bi-${iconName} credential-icon"></i>
+                        <div class="credential-details">
+                            <h3>${credential.title}</h3>
+                            <p><strong>Issued by:</strong> ${credential.issuer || 'N/A'} | <strong>Date:</strong> ${credential.date_issued || 'N/A'}</p>
+                            <p>${credential.description || 'No description available'}</p>
+                        </div>
+                    `;
+                    container.appendChild(credentialItem);
+                } else {
+                    const listItem = document.createElement('div');
+                    listItem.className = 'list-item';
+                    const iconName = credential.icon_name || 'award';
+                    listItem.innerHTML = `
+                        <i class="bi bi-${iconName}"></i>
+                        <span>${credential.title}</span>
+                    `;
+                    container.appendChild(listItem);
+                }
+            });
+
+            if (!isAllCredentialsPage && sortedData.length > 3) {
+                const seeMoreLink = document.createElement('a');
+                seeMoreLink.href = 'See-MoreCredentials.html';
+                seeMoreLink.className = 'see-more-link';
+                seeMoreLink.textContent = 'See All Credentials →';
+                container.parentElement.appendChild(seeMoreLink);
+            }
+        } catch (error) {
+            console.error("Error fetching credentials:", error);
+            const containerIndex = document.getElementById('credentials-container');
+            if (containerIndex) {
+                containerIndex.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
+            }
+            const containerAll = document.getElementById('credentials-main-container');
+            if (containerAll) {
+                containerAll.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
+            }
         }
     }
-}
 
     fetchProjects();
     fetchExperience();
