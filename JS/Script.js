@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('mainContent');
     let highlightedElements = [];
 
-    const API_BASE = 'https://cms-1-z0f5.onrender.com/api';
+    // Use your GitHub raw content URLs
+    const DATA_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main';
+    const IMAGES_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main/images/projects';
 
     function clearHighlights() {
         highlightedElements.forEach(el => {
@@ -110,15 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchProjects() {
         try {
             const isAllProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
-
-            let endpoint;
-            if (isAllProjectsPage) {
-                endpoint = `${API_BASE}/projects/public`;
-            } else {
-                endpoint = `${API_BASE}/projects/public/featured`;
-            }
-
-            const response = await fetch(endpoint);
+            
+            const response = await fetch(`${DATA_BASE}/projects.json`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -136,12 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            data.forEach(project => {
+            // Show all projects on "See More" page, otherwise show first 4
+            const projectsToShow = isAllProjectsPage ? data : data.slice(0, 4);
+
+            projectsToShow.forEach(project => {
                 const projectCard = document.createElement('div');
                 projectCard.className = 'project-card';
 
                 const imageUrl = project.image_url ? 
-                    `https://cms-1-z0f5.onrender.com${project.image_url}` : 
+                    `${IMAGES_BASE}/${project.image_url}` : 
                     '/static/default-project.png';
 
                 projectCard.innerHTML = `
@@ -154,17 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(projectCard);
             });
 
-            if (!isAllProjectsPage) {
-                if (data.length > 0) { 
-                    const sectionBody = document.querySelector('#projects .section-body');
-                    if (sectionBody && !document.getElementById('see-more-projects-link')) {
-                        const seeMoreLink = document.createElement('a');
-                        seeMoreLink.id = 'see-more-projects-link';
-                        seeMoreLink.href = 'See-MoreProjects.html';
-                        seeMoreLink.className = 'see-more-link';
-                        seeMoreLink.textContent = 'See All Projects →';
-                        sectionBody.appendChild(seeMoreLink);
-                    }
+            if (!isAllProjectsPage && data.length > 4) {
+                const sectionBody = document.querySelector('#projects .section-body');
+                if (sectionBody && !document.getElementById('see-more-projects-link')) {
+                    const seeMoreLink = document.createElement('a');
+                    seeMoreLink.id = 'see-more-projects-link';
+                    seeMoreLink.href = 'See-MoreProjects.html';
+                    seeMoreLink.className = 'see-more-link';
+                    seeMoreLink.textContent = 'See All Projects →';
+                    sectionBody.appendChild(seeMoreLink);
                 }
             }
         } catch (error) {
@@ -178,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchExperience() {
         try {
-            const response = await fetch(`${API_BASE}/experience/public`);
+            const response = await fetch(`${DATA_BASE}/experience.json`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -216,9 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCredentials() {
         try {
             const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
-            const isProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
 
-            const response = await fetch(`${API_BASE}/credentials/public`);
+            const response = await fetch(`${DATA_BASE}/credentials.json`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
