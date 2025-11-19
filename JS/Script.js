@@ -238,6 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Credentials loaded:', data); // Debug log
 
             const sortedData = data.sort((a, b) => {
+                if (a.id === 1) return -1;
+                if (b.id === 1) return 1;
+
                 const dateA = new Date(a.date_issued);
                 const dateB = new Date(b.date_issued);
                 return dateB - dateA;
