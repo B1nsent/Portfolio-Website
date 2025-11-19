@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const DATA_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main';
     const IMAGES_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main/images/projects';
 
+    // Helper function to add cache-busting parameter
+    function addCacheBuster(url) {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}_=${Date.now()}`;
+    }
+
     function clearHighlights() {
         highlightedElements.forEach(el => {
             const parent = el.parentNode;
@@ -113,14 +119,18 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const isAllProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
             
-            const response = await fetch(`${DATA_BASE}/projects.json`);
+            // Add cache-busting parameter
+            const response = await fetch(addCacheBuster(`${DATA_BASE}/projects.json`));
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
 
+            console.log('Projects loaded:', data); // Debug log
+
             const container = document.querySelector('#projects .projects-grid');
             if (!container) {
+                console.log('Projects container not found');
                 return;
             }
 
@@ -174,14 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchExperience() {
         try {
-            const response = await fetch(`${DATA_BASE}/experience.json`);
+            // Add cache-busting parameter
+            const response = await fetch(addCacheBuster(`${DATA_BASE}/experience.json`));
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
 
+            console.log('Experience loaded:', data); // Debug log
+
             const container = document.getElementById('experience-container');
             if (!container) {
+                console.log('Experience container not found');
                 return;
             }
 
@@ -202,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(jobItem);
             });
         } catch (error) {
+            console.error("Error fetching experience:", error);
             const container = document.getElementById('experience-container');
             if (container) {
                 container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load experience. Refresh the page or try again later.</p>';
@@ -213,11 +228,14 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
 
-            const response = await fetch(`${DATA_BASE}/credentials.json`);
+            // Add cache-busting parameter
+            const response = await fetch(addCacheBuster(`${DATA_BASE}/credentials.json`));
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
+
+            console.log('Credentials loaded:', data); // Debug log
 
             const sortedData = data.sort((a, b) => {
                 const dateA = new Date(a.date_issued);
@@ -233,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!container) {
+                console.log('Credentials container not found');
                 return;
             }
 
