@@ -1,320 +1,296 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('searchInput');
-    const mainContent = document.getElementById('mainContent');
-    let highlightedElements = [];
+const DATA_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main';
+const IMAGES_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main/images/projects';
 
-    // Use your GitHub raw content URLs
-    const DATA_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main';
-    const IMAGES_BASE = 'https://raw.githubusercontent.com/B1nsent/portfolio-data/main/images/projects';
+let allData = {
+experience: [],
+projects: [],
+credentials: []
+};
 
-    // Helper function to add cache-busting parameter
-    function addCacheBuster(url) {
-        const separator = url.includes('?') ? '&' : '?';
-        return `${url}${separator}_=${Date.now()}`;
-    }
+const ABOUT_TEXT_HTML = `
+`;
 
-    function clearHighlights() {
-        highlightedElements.forEach(el => {
-            const parent = el.parentNode;
-            if (parent) {
-                const textNode = document.createTextNode(el.textContent);
-                parent.insertBefore(textNode, el);
-                parent.removeChild(el);
-            }
-        });
-        highlightedElements = [];
-    }
+const SOCIAL_MEDIA_HTML = `
+<div class="mobile-social-icons-row">
+<a href="mailto:vincent.macasinag@proton.me" class="social-link social-link-icon">
+<i class="bi bi-envelope"></i>
+<span>vincent.macasinag@proton.me</span>
+</a>
+<a href="tel:+639612222627" class="social-link social-link-icon">
+<i class="bi bi-telephone"></i>
+<span>+63 961 2222 627</span>
+</a>
+<a href="https://www.facebook.com/b1nsent" class="social-link social-link-icon" target="_blank">
+<i class="bi bi-facebook"></i>
+<span>Vincent Macasinag</span>
+</a>
+<a href="./File/MacasinagVincent_Resume.pdf" download class="btn-sidebar-primary" target="_blank">
+<i class="bi bi-file-earmark-arrow-down-fill"></i>
+<span>Download Resume</span>
+</a>
+</div>
+`;
 
-    function highlightText(node, term) {
-        const text = node.nodeValue;
-        const lowerText = text.toLowerCase();
-        const lowerTerm = term.toLowerCase();
-        let index = lowerText.indexOf(lowerTerm);
 
-        while (index !== -1) {
-            const beforeText = text.substring(0, index);
-            const matchedText = text.substring(index, index + term.length);
-            const afterText = text.substring(index + term.length);
+function addCacheBuster(url) {
+return `${url}?_=${Date.now()}`;
+}
 
-            const highlightSpan = document.createElement('span');
-            highlightSpan.classList.add('highlight');
-            highlightSpan.textContent = matchedText;
+async function fetchAllData() {
+try {
+const [expRes, projRes, credRes] = await Promise.all([
+fetch(addCacheBuster(`${DATA_BASE}/experience.json`)),
+fetch(addCacheBuster(`${DATA_BASE}/projects.json`)),
+fetch(addCacheBuster(`${DATA_BASE}/credentials.json`))
+]);
 
-            const parent = node.parentNode;
-            parent.insertBefore(document.createTextNode(beforeText), node);
-            parent.insertBefore(highlightSpan, node);
-            node.nodeValue = afterText;
+allData.experience = await expRes.json();
+allData.projects = await projRes.json();
+allData.credentials = await credRes.json();
 
-            highlightedElements.push(highlightSpan);
-            index = node.nodeValue.toLowerCase().indexOf(lowerTerm);
-        }
-    }
+updateStats();
+setupSidebarContent(); 
+renderContent('overview'); 
+} catch (error) {
+console.error('Error fetching data:', error);
+}
+}
 
-    function findTextNodes(element, term) {
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-        const textNodes = [];
-        let node;
-        while ((node = walker.nextNode())) {
-            if (node.nodeValue.toLowerCase().includes(term.toLowerCase())) {
-                textNodes.push(node);
-            }
-        }
-        return textNodes;
-    }
+function setupSidebarContent() {
+const expCount = allData.experience.length;
+const projCount = allData.projects.length;
+const credCount = allData.credentials.length;
 
-    function searchAndScroll() {
-        clearHighlights();
-        const searchTerm = searchInput.value.trim();
-        if (!searchTerm) {
-            return;
-        }
+document.getElementById('about-content-placeholder').innerHTML = ABOUT_TEXT_HTML;
 
-        const textNodesToHighlight = findTextNodes(mainContent, searchTerm);
+const STATS_HTML = `
+ <div class="stats-row-three-items">
+ <div class="stat-item-lg">
+  <span class="stat-value-lg" id="exp-count">${expCount}</span>
+  <span class="stat-label-sm">Experiences</span>
+ </div>
+ <div class="stat-item-lg">
+  <span class="stat-value-lg" id="proj-count">${projCount}</span>
+  <span class="stat-label-sm">Projects</span>
+ </div>
+ <div class="stat-item-lg">
+  <span class="stat-value-lg" id="cred-count">${credCount}</span>
+  <span class="stat-label-sm">Credentials</span>
+ </div>
+ </div>
+`;
 
-        if (textNodesToHighlight.length > 0) {
-            [...textNodesToHighlight].forEach(node => {
-                highlightText(node, searchTerm);
-            });
-            const firstHighlight = document.querySelector('.highlight');
-            if (firstHighlight) {
-                firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    }
+document.getElementById('social-media-placeholder').innerHTML = SOCIAL_MEDIA_HTML;
 
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchAndScroll();
-            }
-        });
+ document.getElementById('mobile-social-bar-placeholder').innerHTML = SOCIAL_MEDIA_HTML + `
+ <div class="mobile-stats-container">${STATS_HTML}</div>
+ `;
 
-        searchInput.addEventListener('input', () => {
-            if (searchInput.value.trim() === "") {
-                clearHighlights();
-            }
-        });
-    }
+const statsGrid = document.getElementById('portfolio-stats-grid');
+statsGrid.innerHTML = STATS_HTML;
+}
 
-    document.querySelectorAll('.share-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const currentUrl = window.location.href;
-            if (navigator.share) {
-                navigator.share({
-                    title: document.title,
-                    url: currentUrl,
-                }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(currentUrl).then(() => {
-                    alert('Portfolio link copied to clipboard!');
-                }).catch(() => {
-                    alert('Could not copy link. Please copy it manually: ' + currentUrl);
-                });
-            }
-        });
-    });
+function updateStats() {
 
-    async function fetchProjects() {
-        try {
-            const isAllProjectsPage = window.location.pathname.includes('See-MoreProjects.html');
-            
-            // Add cache-busting parameter
-            const response = await fetch(addCacheBuster(`${DATA_BASE}/projects.json`));
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
+}
 
-            console.log('Projects loaded:', data); // Debug log
+function createPost(args) {
+const { title, sub, body, contentHtml, flair, subredditName, subredditIcon } = args;
 
-            const container = document.querySelector('#projects .projects-grid');
-            if (!container) {
-                console.log('Projects container not found');
-                return;
-            }
+const randomVotes = Math.floor(Math.random() * 500);
+const randomComments = Math.floor(Math.random() * 50);
 
-            container.innerHTML = '';
+const subredditHtml = subredditName ? `
+ <div class="subreddit-info">
+  <div class="subreddit-icon">${subredditIcon}</div>
+  <span>${subredditName}</span>
+ </div>
+ <span>•</span>
+` : '';
 
-            if (data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No projects available yet.</p>';
-                return;
-            }
+const flairClass = flair ? flair.toLowerCase().replace(/ /g, '') : '';
+const flairHtml = flair ? `
+ <div class="flair-container">
+  <span class="flair ${flairClass}">${flair}</span>
+ </div>
+` : '';
 
-            // Show all projects on "See More" page, otherwise show first 4
-            const projectsToShow = isAllProjectsPage ? data : data.slice(0, 4);
+return `
+<div class="post-card">
+<div class="post-container">
+<div class="post-meta">
+ ${subredditHtml}
+<span>Posted by u/Aya</span>
+</div>
+<h2 class="post-title">${title} ${sub ? `<span class="post-title-subtext">(${sub})</span>` : ''}</h2>
+ ${flairHtml} 
+${body ? `<div class="post-body">${body}</div>` : ''}
+${contentHtml ? `<div class="post-content-wrapper">${contentHtml}</div>` : ''}
 
-            projectsToShow.forEach(project => {
-                const projectCard = document.createElement('div');
-                projectCard.className = 'project-card';
+<div class="post-footer">
+<div class="vote-controls">
+<button class="vote-arrow" aria-label="Upvote"><i class="bi bi-arrow-up-circle-fill"></i></button>
+<span class="vote-score">${randomVotes}</span>
+<button class="vote-arrow" aria-label="Downvote"><i class="bi bi-arrow-down-circle"></i></button>
+</div>
 
-                const imageUrl = project.image_url ? 
-                    `${IMAGES_BASE}/${project.image_url}` : 
-                    '/static/default-project.png';
+<button class="footer-btn"><i class="bi bi-chat"></i> ${randomComments} Reply</button>
+<button class="footer-btn"><i class="bi bi-arrow-90deg-right"></i> Share</button>
+<button class="footer-btn"><i class="bi bi-three-dots"></i></button>
+</div>
+</div>
+</div>
+`;
+}
 
-                projectCard.innerHTML = `
-                    <div class="project-image" style="background-image: url('${imageUrl}');"></div>
-                    <div class="project-content">
-                        <h3>${project.title}</h3>
-                        <p>${project.description || 'No description available'}</p>
-                    </div>
-                `;
-                container.appendChild(projectCard);
-            });
 
-            if (!isAllProjectsPage && data.length > 4) {
-                const sectionBody = document.querySelector('#projects .section-body');
-                if (sectionBody && !document.getElementById('see-more-projects-link')) {
-                    const seeMoreLink = document.createElement('a');
-                    seeMoreLink.id = 'see-more-projects-link';
-                    seeMoreLink.href = 'See-MoreProjects.html';
-                    seeMoreLink.className = 'see-more-link';
-                    seeMoreLink.textContent = 'See All Projects →';
-                    sectionBody.appendChild(seeMoreLink);
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching projects:", error);
-            const container = document.querySelector('#projects .projects-grid');
-            if (container) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load projects. Refresh the page or try again later.</p>';
-            }
-        }
-    }
-
-    async function fetchExperience() {
-        try {
-            // Add cache-busting parameter
-            const response = await fetch(addCacheBuster(`${DATA_BASE}/experience.json`));
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            console.log('Experience loaded:', data); // Debug log
-
-            const container = document.getElementById('experience-container');
-            if (!container) {
-                console.log('Experience container not found');
-                return;
-            }
-
-            container.innerHTML = '';
-
-            if (data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No experience entries available yet.</p>';
-                return;
-            }
-
-            data.forEach(item => {
-                const jobItem = document.createElement('div');
-                jobItem.className = 'job-item';
-                jobItem.innerHTML = `
-                    <h3>${item.title} | ${item.company}</h3>
-                    <p>${item.description || 'No description available'}</p>
-                `;
-                container.appendChild(jobItem);
-            });
-        } catch (error) {
-            console.error("Error fetching experience:", error);
-            const container = document.getElementById('experience-container');
-            if (container) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load experience. Refresh the page or try again later.</p>';
-            }
-        }
-    }
-
-    async function fetchCredentials() {
-        try {
-            const isAllCredentialsPage = window.location.pathname.includes('See-MoreCredentials.html');
-
-            // Add cache-busting parameter
-            const response = await fetch(addCacheBuster(`${DATA_BASE}/credentials.json`));
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            console.log('Credentials loaded:', data); // Debug log
-
-            const sortedData = data.sort((a, b) => {
-                if (a.id === 1) return -1;
-                if (b.id === 1) return 1;
-
-                const dateA = new Date(a.date_issued);
-                const dateB = new Date(b.date_issued);
-                return dateB - dateA;
-            });
-
-            let container;
-            if (isAllCredentialsPage) {
-                container = document.getElementById('credentials-main-container');
-            } else {
-                container = document.getElementById('credentials-container');
-            }
-
-            if (!container) {
-                console.log('Credentials container not found');
-                return;
-            }
-
-            container.innerHTML = '';
-
-            if (sortedData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No credentials available yet.</p>';
-                return;
-            }
-
-            const dataToRender = isAllCredentialsPage ? sortedData : sortedData.slice(0, 3);
-
-            dataToRender.forEach(credential => {
-                if (isAllCredentialsPage) {
-                    const credentialItem = document.createElement('div');
-                    credentialItem.className = 'credential-item';
-                    const iconName = credential.icon_name || 'award';
-                    credentialItem.innerHTML = `
-                        <i class="bi bi-${iconName} credential-icon"></i>
-                        <div class="credential-details">
-                            <h3>${credential.title}</h3>
-                            <p><strong>Issued by:</strong> ${credential.issuer || 'N/A'} | <strong>Date:</strong> ${credential.date_issued || 'N/A'}</p>
-                            <p>${credential.description || 'No description available'}</p>
-                        </div>
-                    `;
-                    container.appendChild(credentialItem);
-                } else {
-                    const listItem = document.createElement('div');
-                    listItem.className = 'list-item';
-                    const iconName = credential.icon_name || 'award';
-                    listItem.innerHTML = `
-                        <i class="bi bi-${iconName}"></i>
-                        <span>${credential.title}</span>
-                    `;
-                    container.appendChild(listItem);
-                }
-            });
-
-            if (!isAllCredentialsPage && sortedData.length > 3) {
-                const seeMoreLink = document.createElement('a');
-                seeMoreLink.href = 'See-MoreCredentials.html';
-                seeMoreLink.className = 'see-more-link';
-                seeMoreLink.textContent = 'See All Credentials →';
-                container.parentElement.appendChild(seeMoreLink);
-            }
-
-        } catch (error) {
-            console.error("Error fetching credentials:", error);
-            const containerIndex = document.getElementById('credentials-container');
-            if (containerIndex) {
-                containerIndex.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
-            }
-            const containerAll = document.getElementById('credentials-main-container');
-            if (containerAll) {
-                containerAll.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Failed to load credentials.</p>';
-            }
-        }
-    }
-
-    fetchProjects();
-    fetchExperience();
-    fetchCredentials();
+function buildExperiencePost(exp) {
+return createPost({
+title: exp.title,
+sub: exp.company,
+body: exp.description || 'No description available.',
+flair: 'Experience',
+ subredditName: 'r/experiences',
+ subredditIcon: '<i class="bi bi-briefcase"></i>'
 });
+}
+
+function buildProjectPost(project) {
+const projectHtml = `
+<div class="showcase-card">
+${project.image_url ? `<img src="${IMAGES_BASE}/${project.image_url}" class="showcase-img" alt="${project.title} screenshot" onerror="this.src='https://via.placeholder.com/600x450/1A1A1B/818384?text=No+Image'">` : '<div class="showcase-img"></div>'}
+</div>
+`;
+
+return createPost({
+title: 'Project Showcase: ' + project.title,
+body: project.description || 'Check out this recently completed project!', 
+contentHtml: `<div class="showcase-grid">${projectHtml}</div>`, 
+flair: 'Project',
+ subredditName: 'r/projects',
+ subredditIcon: '<i class="bi bi-code-slash"></i>'
+});
+}
+
+function buildCredentialPost(cred) {
+const credHtml = `
+<div class="credential-item">
+<i class="bi bi-${cred.icon_name || 'award'} credential-icon"></i>
+<div class="credential-info">
+<h3>${cred.title}</h3>
+<p><strong>Issued by:</strong> ${cred.issuer || 'N/A'} | <strong>Date:</strong> ${cred.date_issued || 'N/A'}</p>
+<p style="margin-top: 4px;">${cred.description || 'No description'}</p>
+</div>
+</div>
+`;
+return createPost({
+title: 'New Credential Earned: ' + cred.title,
+contentHtml: credHtml,
+flair: 'Certification',
+ subredditName: 'r/credentials',
+ subredditIcon: '<i class="bi bi-patch-check"></i>'
+});
+}
+
+
+function renderContent(tab) {
+const contentArea = document.getElementById('content-area');
+let html = '';
+
+document.querySelectorAll('.tabs a').forEach(t => {
+const dataTab = t.dataset.tab === 'info' ? 'education' : t.dataset.tab;
+t.classList.toggle('active', dataTab === tab);
+});
+
+switch(tab) {
+case 'overview':
+const allItems = [
+...allData.experience.map(e => ({type: 'experience', data: e})),
+...allData.projects.map(p => ({type: 'project', data: p})),
+...allData.credentials.map(c => ({type: 'credential', data: c}))
+];
+
+html += createPost({
+title: "Introduction: Welcome to my Digital Portfolio",
+body: "Yokoso! I am Vincent, an IT Student. My passion lies in IT and Politics. I believe that blending these 2 fields can make this country a better place. This website is a showcase of my student journey. Feel free to explore and learn more about myself.",
+flair: "Pinned",
+ subredditName: 'r/Aya',
+ subredditIcon: '<i class="bi bi-reddit"></i>'
+});
+
+allItems.sort(() => Math.random() - 0.5);
+
+allItems.forEach(item => {
+if (item.type === 'experience') {
+html += buildExperiencePost(item.data);
+} else if (item.type === 'project') {
+html += buildProjectPost(item.data);
+} else if (item.type === 'credential') {
+html += buildCredentialPost(item.data);
+}
+});
+break;
+
+case 'education':
+const educationHtml = `
+<div class="credential-item">
+<i class="bi bi-mortarboard credential-icon"></i>
+<div class="credential-info">
+<h3>University of Nueva Caceres</h3>
+<p><strong>Tertiary:</strong> BS Information Technology (2023-Present)</p>
+</div>
+</div>
+<div class="credential-item">
+<i class="bi bi-book credential-icon"></i>
+<div class="credential-info">
+<h3>University of Nueva Caceres</h3>
+<p><strong>Basic Education:</strong> TVL - ICT (2021-2023)</p>
+</div>
+</div>
+`;
+const educationPost = createPost({
+title: 'Education & Background',
+contentHtml: educationHtml,
+flair: 'Education',
+ subredditName: 'r/education',
+ subredditIcon: '<i class="bi bi-mortarboard"></i>'
+});
+
+html = educationPost; 
+break;
+
+case 'experience':
+allData.experience.forEach(exp => {
+html += buildExperiencePost(exp);
+});
+break;
+
+case 'projects':
+allData.projects.forEach(p => {
+html += buildProjectPost(p);
+});
+break;
+
+case 'credentials':
+allData.credentials.forEach(cred => {
+html += buildCredentialPost(cred);
+});
+break;
+}
+
+contentArea.innerHTML = html || '<div style="padding:40px; text-align:center; color:var(--text-secondary);">Nothing to see here yet!</div>';
+}
+
+document.querySelectorAll('.tabs a').forEach(tab => {
+tab.addEventListener('click', (e) => {
+e.preventDefault();
+const tabKey = tab.dataset.tab === 'info' ? 'education' : tab.dataset.tab;
+
+if (tabKey) {
+history.pushState(null, '', tab.href);
+renderContent(tabKey);
+}
+});
+});
+
+fetchAllData();
