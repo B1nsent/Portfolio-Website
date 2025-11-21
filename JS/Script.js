@@ -31,6 +31,9 @@ const SOCIAL_MEDIA_HTML = `
 </div>
 `;
 
+// Tab order for swipe navigation
+const TAB_ORDER = ['overview', 'education', 'experience', 'projects', 'credentials'];
+let currentTabIndex = 0;
 
 function addCacheBuster(url) {
 return `${url}?_=${Date.now()}`;
@@ -51,6 +54,7 @@ allData.credentials = await credRes.json();
 updateStats();
 setupSidebarContent(); 
 renderContent('overview'); 
+setupSwipeNavigation(); // Initialize swipe functionality
 } catch (error) {
 console.error('Error fetching data:', error);
 }
@@ -193,7 +197,7 @@ flair: 'Certification',
 }
 
 
-function renderContent(tab) {
+function renderContent(tab, skipWrapper = false) {
 const contentArea = document.getElementById('content-area');
 let html = '';
 
@@ -201,6 +205,9 @@ document.querySelectorAll('.tabs a').forEach(t => {
 const dataTab = t.dataset.tab === 'info' ? 'education' : t.dataset.tab;
 t.classList.toggle('active', dataTab === tab);
 });
+
+// Update current tab index for swipe navigation
+currentTabIndex = TAB_ORDER.indexOf(tab);
 
 switch(tab) {
 case 'overview':
@@ -278,7 +285,96 @@ html += buildCredentialPost(cred);
 break;
 }
 
-contentArea.innerHTML = html || '<div style="padding:40px; text-align:center; color:var(--text-secondary);">Nothing to see here yet!</div>';
+const finalHtml = html || '<div style="padding:40px; text-align:center; color:var(--text-secondary);">Nothing to see here yet!</div>';
+
+if (skipWrapper) {
+    return finalHtml;
+}
+
+contentArea.innerHTML = `<div class="swipe-container"><div class="content-page">${finalHtml}</div></div>`;
+}
+
+// Swipe navigation setup
+function setupSwipeNavigation() {
+const contentArea = document.getElementById('content-area');
+let touchStartX = 0;
+let touchEndX = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+let isAnimating = false;
+
+contentArea.addEventListener('touchstart', (e) => {
+touchStartX = e.changedTouches[0].screenX;
+touchStartY = e.changedTouches[0].screenY;
+}, false);
+
+contentArea.addEventListener('touchend', (e) => {
+touchEndX = e.changedTouches[0].screenX;
+touchEndY = e.changedTouches[0].screenY;
+handleSwipe();
+}, false);
+
+function handleSwipe() {
+if (isAnimating) return;
+
+const horizontalSwipe = touchEndX - touchStartX;
+const verticalSwipe = Math.abs(touchEndY - touchStartY);
+const minSwipeDistance = 50;
+
+// Only trigger if horizontal swipe is significant and vertical is minimal
+if (Math.abs(horizontalSwipe) > minSwipeDistance && verticalSwipe < 100) {
+if (horizontalSwipe > 0) {
+// Swipe right - go to previous tab
+navigateTab(-1);
+} else {
+// Swipe left - go to next tab
+navigateTab(1);
+}
+}
+}
+
+function navigateTab(direction) {
+if (isAnimating) return;
+
+const newIndex = currentTabIndex + direction;
+
+// Check bounds
+if (newIndex >= 0 && newIndex < TAB_ORDER.length) {
+isAnimating = true;
+const newTab = TAB_ORDER[newIndex];
+const tabElement = document.querySelector(`[data-tab="${newTab}"]`);
+
+if (tabElement) {
+// Add exit animation
+if (direction > 0) {
+contentArea.classList.add('content-slide-left');
+} else {
+contentArea.classList.add('content-slide-right');
+}
+
+// Wait for exit animation, then render new content
+setTimeout(() => {
+history.pushState(null, '', tabElement.href);
+renderContent(newTab);
+
+// Remove exit animation and add enter animation
+contentArea.classList.remove('content-slide-left', 'content-slide-right');
+
+if (direction > 0) {
+contentArea.classList.add('content-slide-in-right');
+} else {
+contentArea.classList.add('content-slide-in-left');
+}
+
+// Clean up after enter animation
+setTimeout(() => {
+contentArea.classList.remove('content-slide-in-left', 'content-slide-in-right');
+isAnimating = false;
+}, 300);
+}, 300);
+}
+}
+}
 }
 
 document.querySelectorAll('.tabs a').forEach(tab => {
